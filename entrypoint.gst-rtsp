@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set -e
+
+# Configure: gst-rtsp
+if [[ ! -e $EP_RUN ]] ; then
+	log "Configuring $(basename $0) for first run ..."
+
+	# Generate keypairs ...
+	if [[ -e $EP_SECRETS_ROOT/gst-rtspca.crt && -e $EP_SECRETS_ROOT/gst-rtsp.crt && -e $EP_SECRETS_ROOT/gst-rtsp.key ]] ; then
+		log "Importing gst-rtspca.crt, gst-rtsp.crt, and gst-rtsp.key from secrets ..."
+	else
+		# Note: Key size must be >= 3072 for "HIGH" security:
+		export GST_RTSP_CERT_DAYS=${GST_RTSP_CERT_DAYS:-30}
+		export GST_RTSP_KEY_SIZE=${GST_RTSP_KEY_SIZE:-4096}
+
+		log "Generating gst-rtspca.crt, gst-rtsp.crt, and gst-rtsp.key in secrets ..."
+
+		log "	certificate authority"
+		openssl genrsa \
+			-out /dev/shm/gst-rtspca.key \
+			$GST_RTSP_KEY_SIZE
+		openssl req \
+			-days $GST_RTSP_CERT_DAYS \
+			-key /dev/shm/gst-rtspca.key \
+			-new \
+			-nodes \
+			-out $EP_SECRETS_ROOT/gst-rtspca.crt \
+			-sha256 \
+			-subj "/CN=gst-rtsp ca" \
+			-x509
+
+		log "	server certificate"
+		openssl genrsa \
+			-out $EP_SECRETS_ROOT/gst-rtsp.key \
+			$GST_RTSP_KEY_SIZE
+		openssl req \
+			-key $EP_SECRETS_ROOT/gst-rtsp.key \
+			-new \
+			-nodes \
+			-out /dev/shm/gst-rtsp.csr \
+			-sha256 \
+			-subj "/CN=gst-rtsp server"
+		openssl x509 \
+			-CA $EP_SECRETS_ROOT/gst-rtspca.crt \
+			-CAkey /dev/shm/gst-rtspca.key \
+			-CAcreateserial \
+			-days $GST_RTSP_CERT_DAYS \
+			-in /dev/shm/gst-rtsp.csr \
+			-out $EP_SECRETS_ROOT/gst-rtsp.crt \
+			-req \
+			-sha256
+
+		rm /dev/shm/{gst-rtspca.key,gst-rtsp.csr} $EP_SECRETS_ROOT/gst-rtspca.srl
+
+	fi
+	install --group=ssl-cert --mode=0640 --owner=root $EP_SECRETS_ROOT/gst-rtsp.key /etc/ssl/private/
+	install --group=root --mode=0644 --owner=root $EP_SECRETS_ROOT/gst-rtsp{,ca}.crt /etc/ssl/certs/
+
+	ln --symbolic /etc/ssl/certs/gst-rtspca.crt /usr/share/ca-certificates/
+	echo gst-rtspca.crt >> /etc/ca-certificates.conf
+	update-ca-certificates
+fi
+

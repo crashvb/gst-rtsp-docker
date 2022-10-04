@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+source /usr/local/lib/entrypoint.sh
+
+args=()
+log "Including endpoint configurations ..."
+for i in ${GST_RTSP_CONFIG}/*
+do
+	if [[ -f $i && -x $i ]] ; then
+		endpoint="$(basename $i)"
+		endpoint="/${endpoint,,}"
+		log "\t${endpoint}"
+		args+=("${endpoint}" "$(cat $i)")
+	fi
+done
+
+exec /usr/local/bin/gst-rtsp-cli -b 0.0.0.0 -p 554 "${args[@]}"
+
