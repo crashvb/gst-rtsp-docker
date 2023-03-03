@@ -20,16 +20,6 @@ The embedded entrypoint script is located at `/etc/entrypoint.d/gst-rtsp` and pe
 
  | Variable | Default Value | Description |
  | -------- | ------------- | ----------- |
- | GST\_RTSP\_CERT\_DAYS | 30 | Validity period of any generated PKI certificates. |
- | GST\_RTSP\_KEY\_SIZE | 4096 | Key size of any generated PKI keys. |
-
-## Healthcheck Scripts
-
-### gst-rtsp
-
-The embedded healthcheck script is located at `/etc/healthcheck.d/gst-rtsp` and performs the following actions:
-
-1. Verifies that all gst-rtsp services are operational.
 
 ## Standard Configuration
 

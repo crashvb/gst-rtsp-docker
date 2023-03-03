@@ -1,19 +1,19 @@
 #!/bin/bash
 
-set -e
+set -e -o pipefail
+shopt -s nullglob
 
 source /usr/local/lib/entrypoint.sh
 
 args=()
 log "Including endpoint configurations ..."
-for i in ${GST_RTSP_CONFIG}/*
+for i in "${GST_RTSP_CONFIG}/"*.conf
 do
-	if [[ -f $i && -x $i ]] ; then
-		endpoint="$(basename $i)"
-		endpoint="/${endpoint,,}"
-		log "\t${endpoint}"
-		args+=("${endpoint}" "$(cat $i)")
-	fi
+	endpoint="$(basename "${i}")"
+	endpoint="${endpoint%.*}"
+	endpoint="${endpoint,,}"
+	log "\t${endpoint}"
+	args+=("/${endpoint}" "$(cat "${i}")")
 done
 
 exec /usr/local/bin/gst-rtsp-cli -b 0.0.0.0 -p 554 "${args[@]}"
