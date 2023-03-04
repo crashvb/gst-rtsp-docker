@@ -32,7 +32,10 @@ The embedded entrypoint script is located at `/etc/entrypoint.d/gst-rtsp` and pe
 │  │  └─ gst-rtsp
 │  ├─ healthcheck.d/
 │  │  └─ gst-rtsp
-│  └─ gst-rtsp/
+│  ├─ gst-rtsp/
+│  └─ supervisor/
+│     └─ config.d/
+│        └─ gst-rtsp.conf
 └─ run/
    └─ secrets/
       ├─ gst-rtsp.crt
