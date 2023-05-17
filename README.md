@@ -11,15 +11,7 @@ This docker image contains [GStreamer RTSP Server](https://gst-rtsp.freedesktop.
 
 ## Entrypoint Scripts
 
-### gst-rtsp
-
-The embedded entrypoint script is located at `/etc/entrypoint.d/gst-rtsp` and performs the following actions:
-
-1. The PKI certificates are generated or imported.
-2. A new gstremer configuration is generated using the following environment variables:
-
- | Variable | Default Value | Description |
- | -------- | ------------- | ----------- |
+None.
 
 ## Standard Configuration
 
@@ -27,20 +19,13 @@ The embedded entrypoint script is located at `/etc/entrypoint.d/gst-rtsp` and pe
 
 ```
 /
-├─ etc/
-│  ├─ entrypoint.d/
-│  │  └─ gst-rtsp
-│  ├─ healthcheck.d/
-│  │  └─ gst-rtsp
-│  ├─ gst-rtsp/
-│  └─ supervisor/
-│     └─ config.d/
-│        └─ gst-rtsp.conf
-└─ run/
-   └─ secrets/
-      ├─ gst-rtsp.crt
-      ├─ gst-rtsp.key
-      └─ gst-rtspca.crt
+└─ etc/
+   ├─ healthcheck.d/
+   │  └─ gst-rtsp
+   ├─ gst-rtsp/
+   └─ supervisor/
+      └─ config.d/
+         └─ gst-rtsp.conf
 ```
 
 ### Exposed Ports
